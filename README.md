@@ -214,13 +214,37 @@ we created our new virtual environment as follows
 ```
 grader@udacity-vm:/var/www/FlaskApp$ sudo virtualenv flasknv
 ```
-After getting inside this virtualenv using the command
+After getting inside this virtualenv "flasknv" The following python packages was installed
+
+**Note: If you following up with the below steps make sure not to use``` sudo pip ```command to do python installation, otherwise python packages will be installed out of the virutalenv**
 ```
 grader@udacity-vm:/var/www/FlaskApp$ source flaskenv/bin/activate
-```
-The following python packages was installed
+
 (flasknv) grader@udacity-vm:/var/www/FlaskApp$ pip install flask packaging oauth2client redis passlib flask-httpauth
 (flasknv) grader@udacity-vm:/var/www/FlaskApp$ pip install sqlalchemy flask-sqlalchemy psycopg2-binary bleach requests
+
+```
+Up to this step it was possible to call flask library from python interpretter inside the virtualenv "flasknv" but not outside of it.
+```
+(flasknv) grader@udacity-vm:/var/www/FlaskApp$ python
+Python 2.7.12 (default, Nov 12 2018, 14:36:49) 
+[GCC 5.4.0 20160609] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import flask
+>>>
+>>> exit()
+(flasknv) grader@udacity-vm:/var/www/FlaskApp$ deactivate
+grader@udacity-vm:/var/www/FlaskApp$ python
+Python 2.7.12 (default, Nov 12 2018, 14:36:49) 
+[GCC 5.4.0 20160609] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import flask
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ImportError: No module named flask
+>>> 
+```
+
 
 ## site preparation
 ## 4- Repository cloning and apache/wsgi prepartion
