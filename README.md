@@ -21,52 +21,80 @@ sudo apt-get upgrade
 sudo apt autoremove
 ```
 **1.b change the default ssh port**
-sss
+
 There are some ports that are delicious to the attackes, or they are considered as the first items in their Attack list, SSH port (port 22) is one of them, the ssh port for the currently working virtual machine was set to 2200 instead of 22.
 The below code was executed:
 ```
 $ sudo vi /etc/ssh/sshd_config
 # What ports, IPs and protocols we listen for
  Port 2200
+$ sudo service sshd restart
 ```
 
 **1.c creat grader user**
-A grader user was created for udaicty grader to be able to login and access the system, here are the steps used to create a user:
+
+To create a user, adduser command was executed, adn the password was set accordingly.
 ```
-$ cd /etc/sudoers.d 
-$ touch grader
+sudo adduser grader
+```
+
+**1.d Add grader to sudoers**
+
+Because in the /etc/sudoers file there are the below two comments:
+```
+Please consider adding local content in /etc/sudoers.d/ instead of
+directly modifying this file.
+```
+A grader file was created for udacity grader to be able to login and access the system, here are the steps used to do it:
+```
+$ sudo touch /etc/sudoers.d/grader
 ```
 Then the following was added to the grader file using vi tool
 ```
-$ vi /etc/sudoers.d/grader
+$ sudo vi /etc/sudoers.d/grader
 grader ALL=(ALL) NOPASSWD:ALL
 ```
 
+
 **1.d key based authentication **
 
-Since adding a user is not enough to secure the account, thus a key was generated on my local machine and the public key was copied to the server, wherase the private key is intended to be shared with the grader to be able to access the droplet.
+Since adding a user is not enough to secure the account, thus a key was generated on my local machine and the public key was copied to the server, wherase the private key is intended to be shared with the grader - in a private channel - for him to be able to access the droplet.
 No passphrase was configured for simplicty
+**NOTE: Done on the local machine not on the Server**
 ```
-ibrahim$ ssh-keygen -t rsa
+$ ssh-keygen -t rsa
         Generating public/private rsa key pair.
         Enter file in which to save the key (/home/ibrahim/.ssh/id_rsa): udacityvm_key
         Enter passphrase (empty for no passphrase): 
         Enter same passphrase again: 
 
 ```
-so the roplet, the public key was copied inside a file ./ssh/authorized_keys
+on the droplet, the public key was copied inside a file ./ssh/authorized_keys
+- The contents of the udacityvm_key.pub file was copied
+- Accessed the droplet using the grader username and password
+- Then the below was executed
 ```
-ssssss.ssh
-touch authorized_keys
+$ sudo mkdir .ssh
+$ sudo nano authorized_keys
 ```
-        NOw just ssh with using your private key
-        ssh grader@68.183.70.105 -p 2200 -i ./udacityvm_key
+Then, the contents of the udacityvm_key.pub was pasted in this file.
+After that, file restriction was done using file permision restriction chmod command as follows: 
+```
+chmod 700 .ssh 
+chmod 644 .ssh/authorized_keys
+```
+Testing ssh was successful using ssh -i command
+```
+$ ssh grader@68.183.70.105 -p 2200 -i ./udacityvm_key
+```
 
-        To force all users to use key pair authentication and not username and password authentiation
-        - edit the sshd_config 
-        sudo nano /etc/ssh/sshd_config
 
-        PasswordAuthentication no
+
+Then the permission level was set
+To force all users to use key pair authentication and not username and password authentiation
+- edit the sshd_config 
+sudo nano /etc/ssh/sshd_config
+PasswordAuthentication no
 
 
 **1.c remote login disabled**
