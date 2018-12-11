@@ -12,7 +12,7 @@ here are the necessary information to access the droplet web-age:
 ## 1 - Securing the Server
 At the very begining the server must be secured since it is going to be accessed by anyone in the world, so the below steps has been considered before moving forward
 
-**1.a Update the Server**
+**1.1 Update the Server**
 
 Every system in the world have to be updated periodically because old machines are having vulnerabilities that are now been fixed through security patches,so the first step to secure the server is by making it up to date, this is not going to completly secure the server, but it is going to decrease the number of threats possible on older versions of the current installed distribution:
 ```
@@ -20,7 +20,7 @@ sudo apt-get update
 sudo apt-get upgrade
 sudo apt autoremove
 ```
-**1.b change the default ssh port**
+**1.2 change the default ssh port**
 
 There are some ports that are delicious to the attackes, or they are considered as the first items in their Attack list, SSH port (port 22) is one of them, the ssh port for the currently working virtual machine was set to 2200 instead of 22.
 The below code was executed:
@@ -28,17 +28,22 @@ The below code was executed:
 $ sudo vi /etc/ssh/sshd_config
 # What ports, IPs and protocols we listen for
  Port 2200
+``` 
+Then the the ssh deamon was restarted
+```
 $ sudo service sshd restart
 ```
 
-**1.c creat grader user**
+
+
+**1.3 creat grader user**
 
 To create a user, adduser command was executed, adn the password was set accordingly.
 ```
 sudo adduser grader
 ```
 
-**1.d Add grader to sudoers**
+**1.4 Add grader to sudoers**
 
 Because in the /etc/sudoers file there are the below two comments:
 ```
@@ -56,10 +61,11 @@ grader ALL=(ALL) NOPASSWD:ALL
 ```
 
 
-**1.d key based authentication **
+**1.5 key based authentication **
 
 Since adding a user is not enough to secure the account, thus a key was generated on my local machine and the public key was copied to the server, wherase the private key is intended to be shared with the grader - in a private channel - for him to be able to access the droplet.
 No passphrase was configured for simplicty
+
 **NOTE: Done on the local machine not on the Server**
 ```
 $ ssh-keygen -t rsa
@@ -71,7 +77,10 @@ $ ssh-keygen -t rsa
 ```
 on the droplet, the public key was copied inside a file ./ssh/authorized_keys
 - The contents of the udacityvm_key.pub file was copied
-- Accessed the droplet using the grader username and password
+- Accessed the droplet using the grader username and password through 
+```
+ssh grader@68.183.70.105
+```
 - Then the below was executed
 ```
 $ sudo mkdir .ssh
@@ -83,25 +92,67 @@ After that, file restriction was done using file permision restriction chmod com
 chmod 700 .ssh 
 chmod 644 .ssh/authorized_keys
 ```
-Testing ssh was successful using ssh -i command
+Testing ssh was successful using the private key through ssh -i command
 ```
 $ ssh grader@68.183.70.105 -p 2200 -i ./udacityvm_key
 ```
 
+**1.6 Restrict key pair authentication**
 
-
-Then the permission level was set
-To force all users to use key pair authentication and not username and password authentiation
-- edit the sshd_config 
-sudo nano /etc/ssh/sshd_config
+Note: if you are following through the steps, make sure you were able to access the server using the below command before proceeding, otherwise you might find yourself unable to login to your server.
+```
+$ ssh grader@<you ip address > -p 2200 -i ./udacityvm_key
+before proceeding, otherwise you might find yourself unable to login to your server.
+```
+The sshd_config file was updated to disable Password Authentication
+```
+$ sudo nano /etc/ssh/sshd_config
 PasswordAuthentication no
+```
+Then the the ssh deamon was restarted
+```
+$ sudo service sshd restart
+```
 
+**1.7 Disable root login**
 
-**1.c remote login disabled**
-$ sudo vi /etc/ssh/sshd_config
+The sshd_config file was updated to disable root login
+```
+$ sudo nano /etc/ssh/sshd_config
 PermitRootLogin no 
+```
+Then the the ssh deamon was restarted
+```
+$ sudo service sshd restart
+```
 
-**1.d remote login disabled**
+**1.8 Enable Firewall UFW **
+
+To prevent access to Services other than SSH,HTTP and NTP, the below code for enabling the firewall was executed.
+**Note: Double check that you can access the server through SSH port 2200 before proceeding with the below code.**
+```
+$ sudo ufw default deny incoming
+$ sudo ufw default allow outgoing
+$ sudo ufw allow 2200/tcp
+$ sudo ufw allow ntp
+$ sudo ufw allow www
+$ sudo ufw enable
+```
+checking the firewall status using sudo ufw status was OK
+```
+grader@udacity-vm:~$ sudo ufw status
+Status: active
+
+To                         Action      From
+--                         ------      ----
+2200/tcp                   ALLOW       Anywhere                  
+123                        ALLOW       Anywhere                  
+80/tcp                     ALLOW       Anywhere                  
+2200/tcp (v6)              ALLOW       Anywhere (v6)             
+123 (v6)                   ALLOW       Anywhere (v6)             
+80/tcp (v6)                ALLOW       Anywhere (v6)  
+```
+
 
 
 
