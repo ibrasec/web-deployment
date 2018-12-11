@@ -9,7 +9,7 @@ here are the necessary information to access the droplet web-age:
 - Linux Distr: Ubuntu-16.04 LTS
 
 # summary of configurations made
-## 1 - Securing the Server
+## 1 - Server security and prepartion
 At the very begining the server must be secured since it is going to be accessed by anyone in the world, so the below steps has been considered before moving forward
 
 **1.1 Update the Server**
@@ -75,7 +75,7 @@ $ ssh-keygen -t rsa
         Enter same passphrase again: 
 
 ```
-on the droplet, the public key was copied inside a file ./ssh/authorized_keys
+on the droplet, the public key was copied inside the grader .ssh file /home/grader/.ssh/authorized_keys through the following steps:
 - The contents of the udacityvm_key.pub file was copied
 - Accessed the droplet using the grader username and password through 
 ```
@@ -83,14 +83,14 @@ ssh grader@68.183.70.105
 ```
 - Then the below was executed
 ```
-$ sudo mkdir .ssh
-$ sudo nano authorized_keys
+$ sudo mkdir /home/grader/.ssh
+$ sudo nano /home/grader/.ssh/authorized_keys
 ```
 Then, the contents of the udacityvm_key.pub was pasted in this file.
-After that, file restriction was done using file permision restriction chmod command as follows: 
+- After that, file restriction was done using file permision restriction chmod command as follows: 
 ```
-chmod 700 .ssh 
-chmod 644 .ssh/authorized_keys
+$ chmod 700 .ssh 
+$ chmod 644 .ssh/authorized_keys
 ```
 Testing ssh was successful using the private key through ssh -i command
 ```
@@ -153,7 +153,23 @@ To                         Action      From
 80/tcp (v6)                ALLOW       Anywhere (v6)  
 ```
 
+## 2- Apache2 Server Installation
+For the Server to handle Websites, apache2 was the deamon service selected to host item-catalog repository
+to install apache2 service, the below code was executed:
 
+```
+grader@udacity-vm:~/.ssh$ sudo apt-get install python-minimal
+```
+Since the item-catalog Repository was built using Flask, an interface with apache is essential for apache server to support such framework, thus wsgi (Web Server Gateway Interface) was installed usingt the below command
+```
+sudo apt-get install libapache2-mod-wsgi
+```
+
+## 3- postgreSQL Installation
+For the item-catalog to 
+
+
+## 4- Repository cloning and apache/wsgi prepartion
 
 
 
