@@ -158,12 +158,19 @@ For the Server to handle Websites, apache2 was the deamon service selected to ho
 to install apache2 service, the below code was executed:
 
 ```
-grader@udacity-vm:~/.ssh$ sudo apt-get install python-minimal
+grader@udacity-vm:~$ sudo apt-get install python-minimal
 ```
 Since the item-catalog Repository was built using Flask, an interface with apache is essential for apache server to support such framework, thus wsgi (Web Server Gateway Interface) was installed usingt the below command
 ```
 sudo apt-get install libapache2-mod-wsgi
 ```
+
+## 3- python installation
+Since my item-catalog repository was written in python 2.7, python 2.7 was installed on the server
+```
+grader@udacity-vm:~$ sudo apt-get install python-minimal
+```
+
 
 ## 3- postgreSQL Installation
 For the item-catalog to 
