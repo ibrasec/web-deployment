@@ -154,7 +154,7 @@ To                         Action      From
 ```
 
 ## 2- Apache2 Server Installation
-For the Server to handle Websites, apache2 was the deamon service selected to host item-catalog repository
+For the Server to handle Websites, apache2 was the deamon service selected to host item-catalog repository,
 to install apache2 service, the below code was executed:
 
 ```
@@ -162,20 +162,67 @@ grader@udacity-vm:~$ sudo apt-get install python-minimal
 ```
 Since the item-catalog Repository was built using Flask, an interface with apache is essential for apache server to support such framework, thus wsgi (Web Server Gateway Interface) was installed usingt the below command
 ```
-sudo apt-get install libapache2-mod-wsgi
+grader@udacity-vm:~$ sudo apt-get install libapache2-mod-wsgi
 ```
+For this step, it is just enough to create a new directory and name it as FlaskApp
+```
+grader@udacity-vm:~$ sudo mkdir /var/www/FlaskApp
+```
+This directory was intended to have 3 main files for our website
+- FlaskApp: which will contain our item-catalog repository files (python, html, images..etc)
+- flaskapp.wsgi: which is a python code to call our main repository applcation
+- flasnv: which is the virutalenv directory that will host our virtual environment didicated for this site
+More information will be described below
+
 
 ## 3- python installation
-Since my item-catalog repository was written in python 2.7, python 2.7 was installed on the server
+
+Since my item-catalog repository was written in python 2.7,
+python 2.7 was installed on the server
 ```
 grader@udacity-vm:~$ sudo apt-get install python-minimal
 ```
+To install python packages using pip,
+pip2 was also installed on the server
+```
+grader@udacity-vm:~$ sudo apt-get install python-pip`
+
+```
+
+## 4- postgreSQL Installation
+
+The server was intended to also work as a local database server, 
+and it was recommended to install PostgreSQL. hence postgresql was installed
+and a database named as 'catalog' with the following username and password was created:
+```
+sudo apt-get install postgresql
+grader@udacity-vm:~$ sudo -u postgres psql
+postgres=# CREATE DATABASE catalog;
+postgres=# CREATE USER codeuser WITH ENCRYPTED PASSWORD 'code_udacity';
+postgres=# GRANT ALL PRIVILEGES ON DATABASE catalog TO codeuser;
+```
 
 
-## 3- postgreSQL Installation
-For the item-catalog to 
+## 5- virutalenv installation
+virtualenv provides the ability to use more than one environment to install different versions of the same python package, i used virtualenv to provide future support of multiple sites each with his own independent python packages
+The installation of virutalenv was simply done by using pip as follows:
+```
+grader@udacity-vm:~$ sudo pip install virtualenv 
+```
+From the /var/www/FlaskApp directory that we have created, 
+we created our new virtual environment as follows
+```
+grader@udacity-vm:/var/www/FlaskApp$ sudo virtualenv flasknv
+```
+After getting inside this virtualenv using the command
+```
+grader@udacity-vm:/var/www/FlaskApp$ source flaskenv/bin/activate
+```
+The following python packages was installed
+(flasknv) grader@udacity-vm:/var/www/FlaskApp$ pip install flask packaging oauth2client redis passlib flask-httpauth
+(flasknv) grader@udacity-vm:/var/www/FlaskApp$ pip install sqlalchemy flask-sqlalchemy psycopg2-binary bleach requests
 
-
+## site preparation
 ## 4- Repository cloning and apache/wsgi prepartion
 
 
