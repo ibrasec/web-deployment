@@ -2,16 +2,19 @@
 web-deployment is the final project in the Full Stack udacity nanodegree program, 
 which is an ilustration of how i deployed my item-catalog repository into a linux machine
 
-# Server preparation
-i have used DigitalOcean droplet (Virtual mahcine) to host my repository
+## Server preparation
+i have used DigitalOcean droplet (Virtual mahcine) to host my repository,
 here are the necessary information to access the droplet web-age:
 - IP address: 68.183.70.105
 - URL: http://itemcatalog.68.183.70.105.xip.io/
 - Linux Distr: Ubuntu-16.04 LTS
 
-# summary of configurations made
-## 1 - Server security and prepartion
-At the very begining the server must be secured since it is going to be accessed by anyone in the world, so the below steps has been considered before moving forward
+**Note: It is recommended to access the page using the given URL instead of directly using the Public IP address, this is due to the fact that the URL is added as a verified domain to use google oauth2, wherease the public ip address is not**
+
+## summary of configurations made
+## 1 - Server security and preparation
+At the very begining the server must be secured since it is going to be accessed by anyone in the world, 
+so the below steps has been considered before moving forward:
 
 **1.1 Update the Server**
 
@@ -39,7 +42,7 @@ $ sudo service sshd restart
 
 **1.3 creat grader user**
 
-To create a user, adduser command was executed, adn the password was set accordingly.
+To create a user, adduser command was executed, and the password was set accordingly.
 ```
 sudo adduser grader
 ```
@@ -62,9 +65,9 @@ grader ALL=(ALL) NOPASSWD:ALL
 ```
 
 
-**1.5 key based authentication **
+**1.5 key based authentication**
 
-Since adding a user is not enough to secure the account, thus a key was generated on my local machine and the public key was copied to the server, wherase the private key is intended to be shared with the grader - in a private channel - for him to be able to access the droplet.
+Adding a user is not enough to secure the account, thus a key was generated on my local machine and the public key was copied to the server, wherase the private key is intended to be shared with the grader - in a private channel - for him to be able to access the droplet.
 No passphrase was configured for simplicty
 
 **NOTE: Done on the local machine not on the Server**
@@ -90,8 +93,8 @@ $ sudo nano /home/grader/.ssh/authorized_keys
 Then, the contents of the udacityvm_key.pub was pasted in this file.
 - After that, file restriction was done using file permision restriction chmod command as follows: 
 ```
-$ chmod 700 .ssh 
-$ chmod 644 .ssh/authorized_keys
+$ sudo chmod 700 .ssh 
+$ sudo chmod 644 .ssh/authorized_keys
 ```
 Testing ssh was successful using the private key through ssh -i command
 ```
@@ -127,7 +130,7 @@ Then the the ssh deamon was restarted
 $ sudo service sshd restart
 ```
 
-**1.8 Enable Firewall UFW **
+**1.8 Enable Firewall UFW**
 
 To prevent access to Services other than SSH,HTTP and NTP, the below code for enabling the firewall was executed.
 **Note: Double check that you can access the server through SSH port 2200 before proceeding with the below code.**
@@ -161,7 +164,7 @@ to install apache2 service, the below code was executed:
 ```
 grader@udacity-vm:~$ sudo apt-get install python-minimal
 ```
-Since the item-catalog Repository was built using Flask, an interface with apache is essential for apache server to support such framework, thus wsgi (Web Server Gateway Interface) was installed usingt the below command
+Since the item-catalog Repository was built using Flask, an interface with apache is essential for apache server to support such framework, thus wsgi (Web Server Gateway Interface) was installed using the below command
 ```
 grader@udacity-vm:~$ sudo apt-get install libapache2-mod-wsgi
 ```
@@ -171,7 +174,7 @@ grader@udacity-vm:~$ sudo mkdir /var/www/FlaskApp
 ```
 This directory was intended to have 3 main files for our website
 - FlaskApp: which will contain our item-catalog repository files (python, html, images..etc)
-- flaskapp.wsgi: which is a python code to call our main repository applcation
+- flaskapp.wsgi: which is a python code to call our main repository application
 - flasnv: which is the virutalenv directory that will host our virtual environment didicated for this site
 More information will be described below
 
@@ -196,11 +199,13 @@ The server was intended to also work as a local database server,
 and it was recommended to install PostgreSQL. hence postgresql was installed
 and a database named as 'catalog' with the following username and password was created:
 ```
-sudo apt-get install postgresql
+grader@udacity-vm:~$ sudo apt-get install postgresql
 grader@udacity-vm:~$ sudo -u postgres psql
 postgres=# CREATE DATABASE catalog;
 postgres=# CREATE USER codeuser WITH ENCRYPTED PASSWORD 'code_udacity';
 postgres=# GRANT ALL PRIVILEGES ON DATABASE catalog TO codeuser;
+postgres=# \q
+grader@udacity-vm:~$
 ```
 
 
@@ -283,7 +288,7 @@ it was also necessasry to change the code in 3 main python files to allow using 
 #                       connect_args={'check_same_thread': False})
 # un-comment the below to use postgres instead of sqlite
 # update the username, password and the database name accordingly
-engine = create_engine('postgresql://username:password@localhost:5432/catalog')
+engine = create_engine('postgresql://codeuser:code_udacity@localhost:5432/catalog')
 ```
 - models.py
 ```
@@ -291,7 +296,7 @@ engine = create_engine('postgresql://username:password@localhost:5432/catalog')
 #                       connect_args={'check_same_thread': False})
 # un-comment the below code if You are using postgresql and not sqlite,
 # be aware of the username and password
-engine = create_engine('postgresql://username:password@localhost:5432/catalog')
+engine = create_engine('postgresql://codeuser:code_udacity@localhost:5432/catalog')
 ```
 - load_catagories.py
 ```
@@ -300,14 +305,17 @@ engine = create_engine('postgresql://username:password@localhost:5432/catalog')
 #                       connect_args={'check_same_thread': False})
 # un-comment the below to use postgres instead of sqlite
 # update the username, password and the database name accordingly
-engine = create_engine('postgresql://username:password@localhost:5432/catalog')
+engine = create_engine('postgresql://codeuser:code_udacity@localhost:5432/catalog')
 ```
 ## 7- wsgi preparation
 a file named as flaskapp.wsgi was created inside the /var/www/FlaskApp directory,
+```
+grader@udacity-vm:/var/www/FlaskApp$ sudo touch flaskapp.wsgi  
+```
 and in order for this file to call our item-catalog main code "\__init\__.py";
 the following code was added
 ```
-grader@udacity-vm:~$ cat /var/www/FlaskApp/flaskapp.wsgi 
+grader@udacity-vm:/var/www/FlaskApp$ cat flaskapp.wsgi 
 #!/usr/bin/python
 import sys
 import random, string
@@ -322,9 +330,13 @@ grader@udacity-vm:~$ sudo apache2ctl restart
 
 ## 8- apache2 site configuration 
 Inside the /etc/apache2/sites-available directory, a file named as FlaskApp.conf was created,
-this file includes the following code to call the location of our flask code
 ```
-grader@udacity-vm:~$ cat /etc/apache2/sites-available/FlaskApp.conf 
+grader@udacity-vm:/var/wwww/FlaskApp$ cd /etc/apache2/sites-available
+grader@udacity-vm:/etc/apache2/sites-available$ sudo touch FlaskApp.conf
+```
+this file includes the following code to call and execute flaskapp.wsgi script that was previously added.
+```
+grader@udacity-vm:/etc/apache2/sites-available$ cat FlaskApp.conf 
 <VirtualHost *:80>
 		    ServerName 68.183.70.105
 		    ServerAdmin admin@mywebsite.com
@@ -353,7 +365,7 @@ grader@udacity-vm:~$ cat /etc/apache2/sites-available/FlaskApp.conf
 ```
 After the previouse file was created, we have to enable that site using the "a2ensite" command as follows:
 ```
-grader@udacity-vm:/etc/apache2/sites-available$sudo a2ensite flaskapp.conf
+grader@udacity-vm:/etc/apache2/sites-available$ sudo a2ensite FlaskApp.conf
 ```
 Then restart apache service as follows:
 ```
@@ -371,7 +383,7 @@ http://itemcatalog.68.183.70.105.xip.io/
 - libapache2-mod-wsgi
 - postgresql
 - virtualenv
-+ The below must be executed from within the virtualenv
+The below were instaled from within the flasknv virtualenv
 - flask
 - packaging
 - oauth2client
@@ -383,10 +395,3 @@ http://itemcatalog.68.183.70.105.xip.io/
 - psycopg2-binary
 - bleach
 - requests
-
-
-
-
-
-
-
