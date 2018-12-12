@@ -314,6 +314,11 @@ from FlaskApp import app as application
 application.secret_key = ''.join(random.choice(
                 string.ascii_uppercase + string.digits) for x in xrange(32))
 ```
+After Adding the flaskapp.wsgi file, apache2ctrl restart command was executed
+```
+grader@udacity-vm:~$ sudo apache2ctl restart
+```
+
 ## 8- apache2 site configuration 
 Inside the /etc/apache2/sites-available directory, a file named as FlaskApp.conf was created,
 this file includes the following code to call the location of our flask code
@@ -335,46 +340,52 @@ grader@udacity-vm:~$ cat /etc/apache2/sites-available/FlaskApp.conf
 			        Allow from all
 		    </Directory>
 		    Alias /templates /var/www/FlaskApp/FlaskApp/templates
-      <Directory /var/www/FlaskApp/FlaskApp/templates/>
-           Order allow,deny
-           Allow from all
-      </Directory>
+		    <Directory /var/www/FlaskApp/FlaskApp/templates/>
+                         Order allow,deny
+                         Allow from all
+                    </Directory>
 		    ErrorLog ${APACHE_LOG_DIR}/error.log
 		    LogLevel warn
 		    CustomLog ${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>
 
 ```
+After the previouse file was created, we have to enable that site using the "a2ensite" command as follows:
+```
+grader@udacity-vm:/etc/apache2/sites-available$sudo a2ensite flaskapp.conf
+```
+Then restart apache service as follows:
+```
+grader@udacity-vm:/etc/apache2/sites-available$ sudo apache2 restart
+```
+
+Now Every thing is properly setup and you can login simply by accessing the below link:
+http://itemcatalog.68.183.70.105.xip.io/
+
+## summary of software/packages installed
+- finger
+- python-minimal
+- apache2
+- python-pip
+- libapache2-mod-wsgi
+- postgresql
+- virtualenv
++ The below must be executed from within the virtualenv
+- flask
+- packaging
+- oauth2client
+- redis
+- passlib
+- flask-httpauth
+- sqlalchemy
+- flask-sqlalchemy
+- psycopg2-binary
+- bleach
+- requests
 
 
 
 
 
 
----- change application.py to __init__.py
-    grader@udacity-vm:/var/www/FlaskApp/FlaskApp$ sudo mv application.py __init__.py
 
----- comment sqlite , change username , password inside the __init__.py, model.py and load_catagories.py
-
-
-
-- summary of software installed
-- list of third-party resources used.
-
-
-
-## item-catalog Repository
-- copy old FlaskApp/FlaskApp files
-  git clone https://github.com/ibrasec/item-catalog-vm
-- copy the new repository to the an Empty FlaskApp file
-    ```
-    grader@udacity-vm:/var/www/FlaskApp$ sudo mkdir FlaskApp
-    grader@udacity-vm:/var/www/FlaskApp$ cd FlaskApp
-    grader@udacity-vm:/var/www/FlaskApp/FlaskApp$ sudo cp -R /home/grader/updateditemcatalog/item-catalog-vm/vagrant/catalog/* .
-    ```
-- change the permision of the img file inside the static folder to be accissble by any one
-    grader@udacity-vm:/var/www/FlaskApp/FlaskApp$ sudo chmod 777 -R static/img
-
-- change application.py to __init__.py
-    grader@udacity-vm:/var/www/FlaskApp/FlaskApp$ sudo mv application.py __init__.py
-- comment sqlite , change username , password inside the __init__.py, model.py and load_catagories.py
