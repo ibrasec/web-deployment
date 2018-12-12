@@ -210,21 +210,23 @@ The installation of virutalenv was simply done by using pip as follows:
 grader@udacity-vm:~$ sudo pip install virtualenv 
 ```
 From the /var/www/FlaskApp directory that we have created, 
-we created our new virtual environment as follows
+we created our new virtual environment "flasknv".
 ```
 grader@udacity-vm:/var/www/FlaskApp$ sudo virtualenv flasknv
+
 ```
-After getting inside this virtualenv "flasknv" The following python packages was installed
+After getting inside this virtualenv "flasknv", the permission was set to 755 in order be able to install the following python packages.
 
 **Note: If you following up with the below steps make sure not to use``` sudo pip ```command to do python installation, otherwise python packages will be installed out of the virutalenv**
 ```
 grader@udacity-vm:/var/www/FlaskApp$ source flaskenv/bin/activate
+(flasknv) grader@udacity-vm:/var/www/FlaskApp$ sudo chmod 755 /var/www/FlaskApp/flasknv/
 
 (flasknv) grader@udacity-vm:/var/www/FlaskApp$ pip install flask packaging oauth2client redis passlib flask-httpauth
 (flasknv) grader@udacity-vm:/var/www/FlaskApp$ pip install sqlalchemy flask-sqlalchemy psycopg2-binary bleach requests
 
 ```
-Up to this step it was possible to call flask library from python interpretter inside the virtualenv "flasknv" but not outside of it.
+Up to this step it was possible to call flask library from python interpretter inside the virtualenv "flasknv" but not outside of it, hwich is what we want.
 ```
 (flasknv) grader@udacity-vm:/var/www/FlaskApp$ python
 Python 2.7.12 (default, Nov 12 2018, 14:36:49) 
@@ -245,9 +247,114 @@ ImportError: No module named flask
 >>> 
 ```
 
+## 6- Clonning and preparing repository 
+Now comes the great part, from outside of the virutalenv;
+the repository was cloned using the already installed git command
+```
+grader@udacity-vm:~$ git clone https://github.com/ibrasec/item-catalog-vm
+```
+Due to the nature of this repositroy - it was mainly designed to be a ready vagrant machine - only the catalog directory and its contents were copied to the new location where the fun is going to run ( inside the /var/www/FlaskApp ).
+So we go to the /var/www/FlaskApp and make a new directory called FlaskApp Just for simplicity
+```
+grader@udacity-vm:~$ cd /var/www/FlaskApp
+grader@udacity-vm:/var/www/FlaskApp$ mdkdir FlaskApp
+grader@udacity-vm:/var/www/FlaskApp$ cd FlaskApp
+grader@udacity-vm:/var/www/FlaskApp/FlaskApp$ 
+```
+from the FlaskApp directroy we copy all the repository's catalog contents into the current directory as follows
+```
+grader@udacity-vm:/var/www/FlaskApp/FlaskApp$ sudo cp -R /home/grader/item-catalog-vm/vagrant/catalog/* .
+```
+Now, in order for the web users to Upload images to the site through web forms,
+the img directory inside the static folder has to be set to 777
+```
+ grader@udacity-vm:/var/www/FlaskApp/FlaskApp$ sudo chmod 777 -R static/img
+```
+Also the main application that runs item-catalog was set to be named as application.py,
+for sake of compatibility with flaskapp.wsgi it was changed it to be named as __init__.py 
+```
+ grader@udacity-vm:/var/www/FlaskApp/FlaskApp$ mv application.py __init__.py
+```
+it was also necessasry to change the code in 3 main python files to allow using postgresql to access the local database instead of sqlite, so the following was also changed
+- \__init\__.py
+```
+#engine = create_engine('sqlite:///catalog.db',
+#                       connect_args={'check_same_thread': False})
+# un-comment the below to use postgres instead of sqlite
+# update the username, password and the database name accordingly
+engine = create_engine('postgresql://username:password@localhost:5432/catalog')
+```
+- models.py
+```
+#engine = create_engine('sqlite:///catalog.db',
+#                       connect_args={'check_same_thread': False})
+# un-comment the below code if You are using postgresql and not sqlite,
+# be aware of the username and password
+engine = create_engine('postgresql://username:password@localhost:5432/catalog')
+```
+- load_catagories.py
+```
+# comment the below to use postgresql instead of sqlite
+#engine = create_engine('sqlite:///catalog.db',
+#                       connect_args={'check_same_thread': False})
+# un-comment the below to use postgres instead of sqlite
+# update the username, password and the database name accordingly
+engine = create_engine('postgresql://username:password@localhost:5432/catalog')
+```
+## 7- wsgi preparation
+a file named as flaskapp.wsgi was created inside the /var/www/FlaskApp directory,
+and in order for this file to call our item-catalog main code "\__init\__.py";
+the following code was added
+```
+grader@udacity-vm:~$ cat /var/www/FlaskApp/flaskapp.wsgi 
+#!/usr/bin/python
+import sys
+import random, string
+from FlaskApp import app as application
+application.secret_key = ''.join(random.choice(
+                string.ascii_uppercase + string.digits) for x in xrange(32))
+```
+## 8- apache2 site configuration 
+Inside the /etc/apache2/sites-available directory, a file named as FlaskApp.conf was created,
+this file includes the following code to call the location of our flask code
+```
+grader@udacity-vm:~$ cat /etc/apache2/sites-available/FlaskApp.conf 
+<VirtualHost *:80>
+		    ServerName 68.183.70.105
+		    ServerAdmin admin@mywebsite.com
+		    WSGIDaemonProcess FlaskApp python-path=/var/www/FlaskApp/:/var/www/FlaskApp/flasknv/local/lib/python2.7/site-packages/
+		    WSGIProcessGroup FlaskApp
+		    WSGIScriptAlias / /var/www/FlaskApp/flaskapp.wsgi
+		    <Directory /var/www/FlaskApp/FlaskApp/>
+			        Order allow,deny
+			        Allow from all
+		    </Directory>
+		    Alias /static /var/www/FlaskApp/FlaskApp/static
+		    <Directory /var/www/FlaskApp/FlaskApp/static/>
+			        Order allow,deny
+			        Allow from all
+		    </Directory>
+		    Alias /templates /var/www/FlaskApp/FlaskApp/templates
+      <Directory /var/www/FlaskApp/FlaskApp/templates/>
+           Order allow,deny
+           Allow from all
+      </Directory>
+		    ErrorLog ${APACHE_LOG_DIR}/error.log
+		    LogLevel warn
+		    CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
 
-## site preparation
-## 4- Repository cloning and apache/wsgi prepartion
+```
+
+
+
+
+
+
+---- change application.py to __init__.py
+    grader@udacity-vm:/var/www/FlaskApp/FlaskApp$ sudo mv application.py __init__.py
+
+---- comment sqlite , change username , password inside the __init__.py, model.py and load_catagories.py
 
 
 
