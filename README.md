@@ -1,5 +1,6 @@
 # web-deployment
-An ilustration of how i deployed my item-catalog repository into a linux machine
+web-deployment is the final project in the Full Stack udacity nanodegree program, 
+which is an ilustration of how i deployed my item-catalog repository into a linux machine
 
 # Server preparation
 i have used DigitalOcean droplet (Virtual mahcine) to host my repository
