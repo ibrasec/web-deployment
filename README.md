@@ -2,10 +2,13 @@
 web-deployment is the final project in the Full Stack udacity nanodegree program, 
 which is an ilustration of how i deployed my item-catalog repository into a linux machine
 
+Note: The Droplet has been destroyed/Deleted and it is not available. 
+thus the ip address and the link is no more accessable.
+
 ## Server preparation
 i have used DigitalOcean droplet (Virtual mahcine) to host my repository,
 here are the necessary information to access the droplet web-age:
-- IP address: 68.183.70.105
+- IP address: 68.183.70.105 ()
 - URL: http://itemcatalog.68.183.70.105.xip.io/
 - Linux Distr: Ubuntu-16.04 LTS
 
