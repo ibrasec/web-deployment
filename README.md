@@ -2,8 +2,8 @@
 web-deployment is the final project in the Full Stack udacity nanodegree program, 
 which is an ilustration of how i deployed my item-catalog repository into a linux machine
 
-Note: The Droplet has been destroyed/Deleted and it is not available. 
-thus the ip address and the link is no more accessable.
+**Note: The Droplet has been destroyed/Deleted and it is not available. 
+thus the ip address and the link is no more accessable.**
 
 ## Server preparation
 i have used DigitalOcean droplet (Virtual mahcine) to host my repository,
